@@ -35,33 +35,19 @@
 
     <p>Verify yourself to continue</p>
 
-    <!-- EMAIL -->
+    <!-- COMBINED INPUT -->
 
-    <input
-      type="email"
-      id="email"
-      placeholder="Enter your email"
-    >
+<input
+  type="text"
+  id="userInput"
+  placeholder="Gmail / Phone"
+>
 
-    <button onclick="sendEmailLink()">
-      Continue With Email
-    </button>
+<div id="recaptcha-container"></div>
 
-    <hr>
-
-    <!-- PHONE -->
-
-    <input
-      type="text"
-      id="phone"
-      placeholder="+27XXXXXXXXX"
-    >
-
-    <div id="recaptcha-container"></div>
-
-    <button onclick="sendPhoneOTP()">
-      Send Phone OTP
-    </button>
+<button onclick="continueAuth()">
+  Continue
+</button>
 
   </div>
 
