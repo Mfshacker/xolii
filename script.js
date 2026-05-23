@@ -1,8 +1,4 @@
-// script.js
-
 // FIREBASE CONFIG
-// Replace with YOUR firebase config
-
 const firebaseConfig = {
   apiKey: "AIzaSyD91XfKDdN4e9HXTEUlMZgVykG3ITAQ8NM",
   authDomain: "xolii-web.firebaseapp.com",
@@ -12,48 +8,171 @@ const firebaseConfig = {
   appId: "1:478461534020:web:267db318833ac2fdc68111",
   measurementId: "G-H53L21CFXJ"
 };
-// INIT FIREBASE
+// INIT
 firebase.initializeApp(firebaseConfig);
 
+const auth = firebase.auth();
 const db = firebase.firestore();
 
-// SAVE VISITOR
-function saveVisitor(){
 
-  const name = document.getElementById("visitorName").value;
+// ==========================
+// EMAIL VERIFICATION
+// ==========================
 
-  if(name.trim() === ""){
-    alert("Please enter your name");
-    return;
-  }
+function sendEmailLink(){
 
-  // SAVE TO FIRESTORE
-  db.collection("visitors").add({
-    name:name,
-    date:new Date()
-  })
+  const email =
+    document.getElementById("email").value;
+
+  const actionCodeSettings = {
+
+    url: "https://mfshacker.github.io/xolii/",
+
+    handleCodeInApp: true
+  };
+
+  auth.sendSignInLinkToEmail(
+    email,
+    actionCodeSettings
+  )
 
   .then(()=>{
-    localStorage.setItem("visitorName", name);
 
-    document.getElementById("popup").style.display = "none";
+    localStorage.setItem(
+      "emailForSignIn",
+      email
+    );
 
-    alert(`Welcome ${name} 👋`);
+    db.collection("visitors").add({
+      method:"email",
+      email:email,
+      date:new Date()
+    });
+
+    alert(
+      "Verification link sent 📩"
+    );
+
   })
 
   .catch((error)=>{
-    console.log(error);
+    alert(error.message);
   });
 
 }
 
-// CHECK IF ALREADY VISITED
+
+// ==========================
+// PHONE OTP
+// ==========================
+
+// RECAPTCHA
+window.recaptchaVerifier =
+  new firebase.auth.RecaptchaVerifier(
+    'recaptcha-container',
+    {
+      size:'normal'
+    }
+  );
+
+function sendPhoneOTP(){
+
+  const phoneNumber =
+    document.getElementById("phone").value;
+
+  const appVerifier =
+    window.recaptchaVerifier;
+
+  auth.signInWithPhoneNumber(
+    phoneNumber,
+    appVerifier
+  )
+
+  .then((confirmationResult)=>{
+
+    window.confirmationResult =
+      confirmationResult;
+
+    const code =
+      prompt("Enter OTP");
+
+    return confirmationResult.confirm(code);
+
+  })
+
+  .then((result)=>{
+
+    db.collection("visitors").add({
+
+      method:"phone",
+      phone:phoneNumber,
+      date:new Date()
+
+    });
+
+    document.getElementById(
+      "popup"
+    ).style.display = "none";
+
+    alert(
+      "Phone verified successfully ✅"
+    );
+
+  })
+
+  .catch((error)=>{
+
+    console.log(error);
+
+    alert(error.message);
+
+  });
+
+}
+
+
+// ==========================
+// COMPLETE EMAIL LOGIN
+// ==========================
+
 window.onload = ()=>{
 
-  const savedName = localStorage.getItem("visitorName");
+  if(
+    auth.isSignInWithEmailLink(
+      window.location.href
+    )
+  ){
 
-  if(savedName){
-    document.getElementById("popup").style.display = "none";
+    let email =
+      localStorage.getItem(
+        "emailForSignIn"
+      );
+
+    if(!email){
+
+      email = prompt(
+        "Confirm your email"
+      );
+
+    }
+
+    auth.signInWithEmailLink(
+      email,
+      window.location.href
+    )
+
+    .then(()=>{
+
+      document.getElementById(
+        "popup"
+      ).style.display = "none";
+
+      alert(
+        "Verified Successfully ✅"
+      );
+
+    });
+
   }
 
 }
