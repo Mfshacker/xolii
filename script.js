@@ -16,163 +16,117 @@ const db = firebase.firestore();
 
 
 // ==========================
-// EMAIL VERIFICATION
+// COMBINED AUTH SYSTEM
 // ==========================
 
-function sendEmailLink(){
-
-  const email =
-    document.getElementById("email").value;
-
-  const actionCodeSettings = {
-
-    url: "https://mfshacker.github.io/xolii/",
-
-    handleCodeInApp: true
-  };
-
-  auth.sendSignInLinkToEmail(
-    email,
-    actionCodeSettings
-  )
-
-  .then(()=>{
-
-    localStorage.setItem(
-      "emailForSignIn",
-      email
-    );
-
-    db.collection("visitors").add({
-      method:"email",
-      email:email,
-      date:new Date()
-    });
-
-    alert(
-      "Verification link sent 📩"
-    );
-
-  })
-
-  .catch((error)=>{
-    alert(error.message);
-  });
-
-}
-
-
-// ==========================
-// PHONE OTP
-// ==========================
-
-// RECAPTCHA
 window.recaptchaVerifier =
   new firebase.auth.RecaptchaVerifier(
     'recaptcha-container',
     {
-      size:'normal'
+      size:'invisible'
     }
   );
 
-function sendPhoneOTP(){
+function continueAuth(){
 
-  const phoneNumber =
-    document.getElementById("phone").value;
-
-  const appVerifier =
-    window.recaptchaVerifier;
-
-  auth.signInWithPhoneNumber(
-    phoneNumber,
-    appVerifier
-  )
-
-  .then((confirmationResult)=>{
-
-    window.confirmationResult =
-      confirmationResult;
-
-    const code =
-      prompt("Enter OTP");
-
-    return confirmationResult.confirm(code);
-
-  })
-
-  .then((result)=>{
-
-    db.collection("visitors").add({
-
-      method:"phone",
-      phone:phoneNumber,
-      date:new Date()
-
-    });
-
+  const input =
     document.getElementById(
-      "popup"
-    ).style.display = "none";
+      "userInput"
+    ).value.trim();
 
-    alert(
-      "Phone verified successfully ✅"
-    );
+  // CHECK IF EMAIL
+  if(input.includes("@")){
 
-  })
+    const actionCodeSettings = {
 
-  .catch((error)=>{
+      url:"https://https://mfshacker.github.io/xolii/e/",
 
-    console.log(error);
+      handleCodeInApp:true
+    };
 
-    alert(error.message);
-
-  });
-
-}
-
-
-// ==========================
-// COMPLETE EMAIL LOGIN
-// ==========================
-
-window.onload = ()=>{
-
-  if(
-    auth.isSignInWithEmailLink(
-      window.location.href
-    )
-  ){
-
-    let email =
-      localStorage.getItem(
-        "emailForSignIn"
-      );
-
-    if(!email){
-
-      email = prompt(
-        "Confirm your email"
-      );
-
-    }
-
-    auth.signInWithEmailLink(
-      email,
-      window.location.href
+    auth.sendSignInLinkToEmail(
+      input,
+      actionCodeSettings
     )
 
     .then(()=>{
+
+      localStorage.setItem(
+        "emailForSignIn",
+        input
+      );
+
+      db.collection("visitors").add({
+
+        method:"email",
+        email:input,
+        date:new Date()
+
+      });
+
+      alert(
+        "Verification link sent 📩"
+      );
+
+    })
+
+    .catch((error)=>{
+
+      alert(error.message);
+
+    });
+
+  }
+
+  // OTHERWISE PHONE
+  else{
+
+    const appVerifier =
+      window.recaptchaVerifier;
+
+    auth.signInWithPhoneNumber(
+      input,
+      appVerifier
+    )
+
+    .then((confirmationResult)=>{
+
+      const code =
+        prompt("Enter OTP");
+
+      return confirmationResult.confirm(
+        code
+      );
+
+    })
+
+    .then(()=>{
+
+      db.collection("visitors").add({
+
+        method:"phone",
+        phone:input,
+        date:new Date()
+
+      });
 
       document.getElementById(
         "popup"
       ).style.display = "none";
 
       alert(
-        "Verified Successfully ✅"
+        "Phone verified ✅"
       );
+
+    })
+
+    .catch((error)=>{
+
+      alert(error.message);
 
     });
 
   }
 
+}
 }
