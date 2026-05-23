@@ -8,7 +8,8 @@ const firebaseConfig = {
   appId: "1:478461534020:web:267db318833ac2fdc68111",
   measurementId: "G-H53L21CFXJ"
 };
-// INIT
+
+// INIT FIREBASE
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
@@ -16,116 +17,131 @@ const db = firebase.firestore();
 
 
 // ==========================
-// COMBINED AUTH SYSTEM
+// RECAPTCHA (PHONE OTP)
 // ==========================
 
 window.recaptchaVerifier =
   new firebase.auth.RecaptchaVerifier(
     'recaptcha-container',
     {
-      size:'invisible'
+      size: 'invisible'
     }
   );
 
-function continueAuth(){
 
-  const input =
-    document.getElementById(
-      "userInput"
-    ).value.trim();
+// ==========================
+// MAIN AUTH FUNCTION
+// ==========================
 
-  // CHECK IF EMAIL
-  if(input.includes("@")){
+function continueAuth() {
+
+  const input = document.getElementById("userInput").value.trim();
+
+  if (!input) {
+    alert("Enter Gmail or Phone number");
+    return;
+  }
+
+  // ==========================
+  // EMAIL FLOW
+  // ==========================
+  if (input.includes("@")) {
 
     const actionCodeSettings = {
-
-      url:"https://mfshacker.github.io/xolii/",
-
-      handleCodeInApp:true
+      url: "https://mfshacker.github.io/xolii/",
+      handleCodeInApp: true
     };
 
-    auth.sendSignInLinkToEmail(
-      input,
-      actionCodeSettings
-    )
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    .then(()=>{
+    auth.sendSignInLinkToEmail(input, actionCodeSettings)
+      .then(() => {
 
-      localStorage.setItem(
-        "emailForSignIn",
-        input
-      );
+        window.localStorage.setItem("emailForSignIn", input);
 
-      db.collection("visitors").add({
+        db.collection("visitors").add({
+          method: "email",
+          email: input,
+          date: new Date()
+        });
 
-        method:"email",
-        email:input,
-        date:new Date()
+        alert("Verification link sent 📩 Check your email");
 
+      })
+      .catch((error) => {
+        alert(error.message);
       });
-
-      alert(
-        "Verification link sent 📩"
-      );
-
-    })
-
-    .catch((error)=>{
-
-      alert(error.message);
-
-    });
 
   }
 
-  // OTHERWISE PHONE
-  else{
+  // ==========================
+  // PHONE FLOW
+  // ==========================
+  else {
 
-    const appVerifier =
-      window.recaptchaVerifier;
+    const appVerifier = window.recaptchaVerifier;
 
-    auth.signInWithPhoneNumber(
-      input,
-      appVerifier
-    )
+    auth.signInWithPhoneNumber(input, appVerifier)
+      .then((confirmationResult) => {
 
-    .then((confirmationResult)=>{
+        const code = prompt("Enter OTP sent to your phone");
 
-      const code =
-        prompt("Enter OTP");
+        if (!code) {
+          alert("OTP required");
+          return;
+        }
 
-      return confirmationResult.confirm(
-        code
-      );
+        return confirmationResult.confirm(code);
 
-    })
+      })
+      .then(() => {
 
-    .then(()=>{
+        db.collection("visitors").add({
+          method: "phone",
+          phone: input,
+          date: new Date()
+        });
 
-      db.collection("visitors").add({
+        document.getElementById("popup").style.display = "none";
 
-        method:"phone",
-        phone:input,
-        date:new Date()
+        alert("Phone verified successfully ✅");
 
+      })
+      .catch((error) => {
+        alert(error.message);
       });
-
-      document.getElementById(
-        "popup"
-      ).style.display = "none";
-
-      alert(
-        "Phone verified ✅"
-      );
-
-    })
-
-    .catch((error)=>{
-
-      alert(error.message);
-
-    });
-
   }
-
 }
+
+
+// ==========================
+// HANDLE EMAIL REDIRECT (IMPORTANT FIX)
+// ==========================
+
+window.onload = () => {
+
+  if (auth.isSignInWithEmailLink(window.location.href)) {
+
+    let email = window.localStorage.getItem("emailForSignIn");
+
+    if (!email) {
+      email = prompt("Confirm your email again:");
+    }
+
+    auth.signInWithEmailLink(email, window.location.href)
+      .then(() => {
+
+        document.getElementById("popup").style.display = "none";
+
+        alert("Email verified successfully ✅");
+
+        // stop redirect loop
+        window.history.replaceState({}, document.title, "/");
+
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(error.message);
+      });
+  }
+};
