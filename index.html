@@ -1,0 +1,138 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XOlii</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+
+  <!-- LOADING SCREEN -->
+  <div class="loader">
+    <h1>XOlii</h1>
+  </div>
+
+  <!-- NAME POPUP -->
+  <div class="popup" id="popup">
+    <div class="popup-box">
+      <h2>Welcome 👋</h2>
+      <p>What's your name?</p>
+
+      <input type="text" id="visitorName" placeholder="Enter your name">
+
+      <button onclick="saveVisitor()">Enter Site</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="overlay"></div>
+
+    <div class="hero-content">
+      <h1>XOlii</h1>
+      <p>Creative Mind • Future Innovator • Digital Visionary</p>
+
+      <a href="#about" class="btn">Explore</a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <h2>About Me</h2>
+
+    <p>
+      I'm XOlii from South Africa 🇿🇦.
+      I enjoy technology, investing, fashion, creativity,
+      and building futuristic ideas.
+    </p>
+  </section>
+
+  <!-- HOBBIES -->
+  <section class="section dark">
+    <h2>Hobbies</h2>
+
+    <div class="cards">
+
+      <div class="card">
+        <h3>💻 Coding</h3>
+      </div>
+
+      <div class="card">
+        <h3>📈 Investing</h3>
+      </div>
+
+      <div class="card">
+        <h3>🎧 Music</h3>
+      </div>
+
+      <div class="card">
+        <h3>🎮 Gaming</h3>
+      </div>
+
+      <div class="card">
+        <h3>👟 Fashion</h3>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PICTURES -->
+  <section class="section" id="gallery">
+    <h2>Pictures</h2>
+
+    <div class="gallery">
+
+      <img src="https://picsum.photos/400/500?1">
+      <img src="https://picsum.photos/400/500?2">
+      <img src="https://picsum.photos/400/500?3">
+
+    </div>
+  </section>
+
+  <!-- BEST FRIEND -->
+  <section class="section dark">
+    <h2>Best Friend</h2>
+
+    <div class="friend-card">
+      <h3>Your Best Friend Name</h3>
+
+      <p>
+        Loyal. Supportive. Real since day one.
+      </p>
+    </div>
+  </section>
+
+  <!-- SOCIALS -->
+  <section class="section">
+    <h2>Connect With Me</h2>
+
+    <div class="socials">
+
+      <a href="#">Instagram</a>
+      <a href="#">TikTok</a>
+      <a href="#">WhatsApp</a>
+      <a href="#">Email</a>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2026 XOlii — All Rights Reserved</p>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
