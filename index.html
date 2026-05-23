@@ -23,17 +23,46 @@
     <h1>XOlii</h1>
   </div>
 
-  <!-- NAME POPUP -->
-  <div class="popup" id="popup">
-    <div class="popup-box">
-      <h2>Welcome 👋</h2>
-      <p>What's your name?</p>
+  <!-- AUTH POPUP -->
+<div class="popup" id="popup">
 
-      <input type="text" id="visitorName" placeholder="Enter your name">
+  <div class="popup-box">
 
-      <button onclick="saveVisitor()">Enter Site</button>
-    </div>
+    <h2>XOlii 🔐</h2>
+
+    <p>Verify yourself to continue</p>
+
+    <!-- EMAIL -->
+
+    <input
+      type="email"
+      id="email"
+      placeholder="Enter your email"
+    >
+
+    <button onclick="sendEmailLink()">
+      Continue With Email
+    </button>
+
+    <hr>
+
+    <!-- PHONE -->
+
+    <input
+      type="text"
+      id="phone"
+      placeholder="+27XXXXXXXXX"
+    >
+
+    <div id="recaptcha-container"></div>
+
+    <button onclick="sendPhoneOTP()">
+      Send Phone OTP
+    </button>
+
   </div>
+
+</div>
 
   <!-- HERO -->
   <section class="hero">
