@@ -4,14 +4,14 @@
 // Replace with YOUR firebase config
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXXXXXX",
-  appId: "XXXXXXXX"
+  apiKey: "AIzaSyD91XfKDdN4e9HXTEUlMZgVykG3ITAQ8NM",
+  authDomain: "xolii-web.firebaseapp.com",
+  projectId: "xolii-web",
+  storageBucket: "xolii-web.firebasestorage.app",
+  messagingSenderId: "478461534020",
+  appId: "1:478461534020:web:267db318833ac2fdc68111",
+  measurementId: "G-H53L21CFXJ"
 };
-
 // INIT FIREBASE
 firebase.initializeApp(firebaseConfig);
 
