@@ -39,7 +39,7 @@ function continueAuth(){
 
     const actionCodeSettings = {
 
-      url:"https://mfshacker.github.io/xolii/e/",
+      url:"https://mfshacker.github.io/xolii/",
 
       handleCodeInApp:true
     };
@@ -128,5 +128,4 @@ function continueAuth(){
 
   }
 
-}
 }
