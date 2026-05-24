@@ -1,5 +1,7 @@
 // FIREBASE CONFIG
+
 const firebaseConfig = {
+
   apiKey: "AIzaSyD91XfKDdN4e9HXTEUlMZgVykG3ITAQ8NM",
   authDomain: "xolii-web.firebaseapp.com",
   projectId: "xolii-web",
@@ -7,26 +9,16 @@ const firebaseConfig = {
   messagingSenderId: "478461534020",
   appId: "1:478461534020:web:267db318833ac2fdc68111",
   measurementId: "G-H53L21CFXJ"
+
 };
 
+
 // INIT FIREBASE
+
 firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 const db = firebase.firestore();
-
-
-// ==========================
-// RECAPTCHA (PHONE OTP)
-// ==========================
-
-window.recaptchaVerifier =
-  new firebase.auth.RecaptchaVerifier(
-    'recaptcha-container',
-    {
-      size: 'invisible'
-    }
-  );
 
 
 // ==========================
@@ -35,119 +27,244 @@ window.recaptchaVerifier =
 
 function continueAuth() {
 
-  const input = document.getElementById("userInput").value.trim();
+  const input =
+    document.getElementById(
+      "userInput"
+    ).value.trim();
+
+  // EMPTY INPUT
 
   if (!input) {
-    alert("Enter Gmail or Phone number");
+
+    alert(
+      "Enter Gmail or Phone number"
+    );
+
     return;
   }
+
 
   // ==========================
   // EMAIL FLOW
   // ==========================
+
   if (input.includes("@")) {
 
     const actionCodeSettings = {
+
       url: "https://mfshacker.github.io/xolii/",
+
       handleCodeInApp: true
+
     };
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
-    auth.sendSignInLinkToEmail(input, actionCodeSettings)
-      .then(() => {
+    auth.setPersistence(
+      firebase.auth.Auth.Persistence.LOCAL
+    );
 
-        window.localStorage.setItem("emailForSignIn", input);
 
-        db.collection("visitors").add({
-          method: "email",
-          email: input,
-          date: new Date()
-        });
+    auth.sendSignInLinkToEmail(
+      input,
+      actionCodeSettings
+    )
 
-        alert("Verification link sent 📩 Check your email");
+    .then(() => {
 
-      })
-      .catch((error) => {
-        alert(error.message);
+      window.localStorage.setItem(
+        "emailForSignIn",
+        input
+      );
+
+      // SAVE VISITOR
+
+      db.collection("visitors").add({
+
+        method: "email",
+        email: input,
+        date: new Date()
+
       });
 
+      alert(
+        "Verification link sent 📩 Check your email"
+      );
+
+    })
+
+    .catch((error) => {
+
+      console.log(error);
+
+      alert(error.message);
+
+    });
+
   }
+
 
   // ==========================
   // PHONE FLOW
   // ==========================
+
   else {
 
-    const appVerifier = window.recaptchaVerifier;
+    const appVerifier =
+      window.recaptchaVerifier;
 
-    auth.signInWithPhoneNumber(input, appVerifier)
-      .then((confirmationResult) => {
+    auth.signInWithPhoneNumber(
+      input,
+      appVerifier
+    )
 
-        const code = prompt("Enter OTP sent to your phone");
+    .then((confirmationResult) => {
 
-        if (!code) {
-          alert("OTP required");
-          return;
-        }
+      const code = prompt(
+        "Enter OTP sent to your phone"
+      );
 
-        return confirmationResult.confirm(code);
+      if (!code) {
 
-      })
-      .then(() => {
+        alert("OTP required");
 
-        db.collection("visitors").add({
-          method: "phone",
-          phone: input,
-          date: new Date()
-        });
+        return;
+      }
 
-        document.getElementById("popup").style.display = "none";
+      return confirmationResult.confirm(
+        code
+      );
 
-document.getElementById("main-site").style.display = "block";
+    })
 
-document.body.style.overflow = "auto";
+    .then(() => {
 
-        alert("Phone verified successfully ✅");
+      // SAVE VISITOR
 
-      })
-      .catch((error) => {
-        alert(error.message);
+      db.collection("visitors").add({
+
+        method: "phone",
+        phone: input,
+        date: new Date()
+
       });
+
+      // SHOW WEBSITE
+
+      document.getElementById(
+        "popup"
+      ).style.display = "none";
+
+      document.getElementById(
+        "main-site"
+      ).style.display = "block";
+
+      document.body.style.overflow =
+        "auto";
+
+      alert(
+        "Phone verified successfully ✅"
+      );
+
+    })
+
+    .catch((error) => {
+
+      console.log(error);
+
+      alert(error.message);
+
+    });
+
   }
+
 }
 
 
 // ==========================
-// HANDLE EMAIL REDIRECT (IMPORTANT FIX)
+// PAGE LOAD
 // ==========================
 
 window.onload = () => {
 
-  document.body.style.overflow = "hidden";
-  
-  if (auth.isSignInWithEmailLink(window.location.href)) {
+  // LOCK SCROLL BEFORE LOGIN
 
-    let email = window.localStorage.getItem("emailForSignIn");
+  document.body.style.overflow =
+    "hidden";
+
+
+  // INIT RECAPTCHA
+
+  window.recaptchaVerifier =
+    new firebase.auth.RecaptchaVerifier(
+      'recaptcha-container',
+      {
+        size: 'invisible'
+      }
+    );
+
+
+  // ==========================
+  // EMAIL LOGIN HANDLER
+  // ==========================
+
+  if (
+    auth.isSignInWithEmailLink(
+      window.location.href
+    )
+  ) {
+
+    let email =
+      window.localStorage.getItem(
+        "emailForSignIn"
+      );
 
     if (!email) {
-      email = prompt("Confirm your email again:");
+
+      email = prompt(
+        "Confirm your email again:"
+      );
+
     }
 
-    auth.signInWithEmailLink(email, window.location.href)
-      .then(() => {
 
-        document.getElementById("popup").style.display = "none";
+    auth.signInWithEmailLink(
+      email,
+      window.location.href
+    )
 
-        alert("Email verified successfully ✅");
+    .then(() => {
 
-        // stop redirect loop
-        window.history.replaceState({}, document.title, "/");
+      // HIDE POPUP
 
-      })
-      .catch((error) => {
-        console.log(error);
-        alert(error.message);
-      });
+      document.getElementById(
+        "popup"
+      ).style.display = "none";
+
+      // SHOW WEBSITE
+
+      document.getElementById(
+        "main-site"
+      ).style.display = "block";
+
+      // ENABLE SCROLL
+
+      document.body.style.overflow =
+        "auto";
+
+      alert(
+        "Email verified successfully ✅"
+      );
+
+    })
+
+    .catch((error) => {
+
+      console.log(error);
+
+      alert(error.message);
+
+    });
+
   }
+
 };
