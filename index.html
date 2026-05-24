@@ -2,161 +2,252 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
   <title>Xolii</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- GOOGLE FONT -->
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+    rel="stylesheet"
+  >
 
   <!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 </head>
 
 <body>
 
   <!-- LOADING SCREEN -->
+
   <div class="loader">
+
     <h1>XOlii</h1>
+
   </div>
+
 
   <!-- AUTH POPUP -->
-<div class="popup" id="popup">
 
-  <div class="popup-box">
+  <div class="popup" id="popup">
 
-    <h2>XOlii 🔐</h2>
+    <div class="popup-box">
 
-    <p>Verify yourself to continue</p>
+      <h2>XOlii 🔐</h2>
 
-    <!-- COMBINED INPUT -->
+      <p>Verify yourself to continue</p>
 
-<input
-  type="text"
-  id="userInput"
-  placeholder="Gmail / Phone"
->
+      <!-- INPUT -->
 
-<div id="recaptcha-container"></div>
+      <input
+        type="text"
+        id="userInput"
+        placeholder="Gmail / Phone"
+      >
 
-<button onclick="continueAuth()">
-  Continue
-</button>
+      <!-- BUTTON -->
+
+      <button onclick="continueAuth()">
+        Continue
+      </button>
+
+      <!-- RECAPTCHA -->
+
+      <div id="recaptcha-container"></div>
+
+    </div>
 
   </div>
 
-</div>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="overlay"></div>
+  <!-- MAIN WEBSITE (LOCKED BEFORE LOGIN) -->
 
-    <div class="hero-content">
-      <h1>XOlii</h1>
-      <p>Creative Mind • Future Innovator • Digital Visionary</p>
+  <div id="main-site" style="display:none;">
 
-      <a href="#about" class="btn">Explore</a>
-    </div>
-  </section>
 
-  <!-- ABOUT -->
-  <section class="section" id="about">
-    <h2>About Me</h2>
+    <!-- HERO -->
 
-    <p>
-      I'm Xolii from Gauteng>>>Vaal>>Vanderbijlpark.
-      I enjoy technology, investing, music, creativity,
-      and building futuristic ideas.
-    </p>
-  </section>
+    <section class="hero">
 
-  <!-- HOBBIES -->
-  <section class="section dark">
-    <h2>Hobbies</h2>
+      <div class="overlay"></div>
 
-    <div class="cards">
+      <div class="hero-content">
 
-      <div class="card">
-        <h3>💻 Coding</h3>
+        <h1>XOlii</h1>
+
+        <p>
+          Creative Mind • Future Innovator • Digital Visionary
+        </p>
+
+        <a href="#about" class="btn">
+          Explore
+        </a>
+
       </div>
 
-      <div class="card">
-        <h3>📈 Gambling</h3>
+    </section>
+
+
+    <!-- ABOUT -->
+
+    <section class="section" id="about">
+
+      <h2>About Me</h2>
+
+      <p>
+        I'm Xolii from Gauteng >>> Vaal >>> Vanderbijlpark.
+        I enjoy technology, investing, music,
+        creativity and building futuristic ideas.
+      </p>
+
+    </section>
+
+
+    <!-- HOBBIES -->
+
+    <section class="section dark">
+
+      <h2>Hobbies</h2>
+
+      <div class="cards">
+
+        <div class="card">
+          <h3>💻 Coding</h3>
+        </div>
+
+        <div class="card">
+          <h3>📈 Gambling</h3>
+        </div>
+
+        <div class="card">
+          <h3>🎧 Music</h3>
+        </div>
+
+        <div class="card">
+          <h3>🎮 Gaming</h3>
+        </div>
+
+        <div class="card">
+          <h3>📗 Reading</h3>
+        </div>
+
       </div>
 
-      <div class="card">
-        <h3>🎧 Music</h3>
+    </section>
+
+
+    <!-- PICTURES -->
+
+    <section class="section" id="gallery">
+
+      <h2>Pictures</h2>
+
+      <div class="gallery">
+
+        <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.32 (1).jpeg">
+
+        <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.31.jpeg">
+
+        <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.32.jpeg">
+
       </div>
 
-      <div class="card">
-        <h3>🎮 Gaming</h3>
+    </section>
+
+
+    <!-- BEST FRIEND -->
+
+    <section class="section dark">
+
+      <h2>Best Friend</h2>
+
+      <div class="friend-card">
+
+        <img
+          src="assets/images/WhatsApp Image 2026-05-24 at 00.03.34.jpeg"
+          class="friend-img"
+        >
+
+        <h3>TENRY MHLANGA</h3>
+
+        <p>
+          Loyal. Supportive. Real since day one.
+        </p>
+
       </div>
 
-      <div class="card">
-        <h3>📗 Reading</h3>
+    </section>
+
+
+    <!-- SOCIALS -->
+
+    <section class="section">
+
+      <h2>Connect With Me</h2>
+
+      <div class="socials">
+
+        <a
+          href="https://instagram.com/xoliizz________0"
+          target="_blank"
+        >
+          Instagram
+        </a>
+
+        <a
+          href="https://tiktok.com/@xolii_25"
+          target="_blank"
+        >
+          TikTok
+        </a>
+
+        <a
+          href="https://wa.me/27640174203"
+          target="_blank"
+        >
+          WhatsApp
+        </a>
+
+        <a
+          href="mailto:xoliixvi@gmail.com"
+        >
+          Email
+        </a>
+
       </div>
 
-    </div>
-  </section>
+    </section>
 
-  <!-- PICTURES -->
-  <section class="section" id="gallery">
-    <h2>Pictures</h2>
 
-    <div class="gallery">
+    <!-- FOOTER -->
 
-      <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.32 (1).jpeg">
-      <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.31.jpeg">
-      <img src="assets/images/WhatsApp Image 2026-05-24 at 00.00.32.jpeg">
+    <footer>
 
-    </div>
-  </section>
+      <p>
+        © 2026 Xolii — All Rights Reserved
+      </p>
 
-  <!-- BEST FRIEND -->
-  <section class="section dark">
-    <h2>Best Friend</h2>
+    </footer>
 
-    <div class="friend-card">
+  </div>
 
-  <img src="assets/images/WhatsApp Image 2026-05-24 at 00.03.34.jpeg">
 
-  <h3>TENRY MHLANGA</h3>
-
-  <p>
-    Loyal. Supportive. Real since day one.
-  </p>
-
-</div>
-  </section>
-
-  <!-- SOCIALS -->
-  <section class="section">
-    <h2>Connect With Me</h2>
-
-    <div class="socials">
-
-      <a href="https://instagram.com/xoliizz________0" target="_blank">
-    Instagram</a>
-      <a href="https://tiktok.com/@xolii_25" target="_blank">
-    TikTok</a>
-      <a href="https://wa.me/27640174203" target="_blank">
-    WhatsApp</a>
-      <a href="mailto:xoliixvi@gmail.com">
-    Email</a>
-
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer>
-    <p>© 2026 Xolii — All Rights Reserved</p>
-  </footer>
+  <!-- SCRIPT -->
 
   <script src="script.js"></script>
 
