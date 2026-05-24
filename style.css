@@ -235,3 +235,39 @@ footer{
   margin-bottom:20px;
   border:3px solid white;
 }
+
+/* RESPONSIVE FIXES */
+
+img{
+  max-width:100%;
+}
+
+/* HERO */
+
+.hero{
+  min-height:100vh;
+  padding:20px;
+}
+
+/* RESPONSIVE TABLET */
+
+@media(max-width:900px){
+
+  .hero h1{
+    font-size:4rem;
+  }
+
+  .section{
+    padding:80px 7%;
+  }
+
+}
+
+/* RESPONSIVE PHONE */
+
+@media(max-width:600px){
+
+  .hero h1{
+    font-size:2.7rem;
+  }
+
