@@ -188,6 +188,8 @@ window.onload = () => {
 
   // LOCK SCROLL BEFORE LOGIN
 
+  document.querySelector(".loader").style.display = "none";
+  
   document.body.style.overflow =
     "hidden";
 
