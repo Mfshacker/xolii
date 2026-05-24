@@ -124,6 +124,8 @@ document.body.style.overflow = "auto";
 
 window.onload = () => {
 
+  document.body.style.overflow = "hidden";
+  
   if (auth.isSignInWithEmailLink(window.location.href)) {
 
     let email = window.localStorage.getItem("emailForSignIn");
