@@ -1,16 +1,27 @@
-// FIREBASE CONFIG
-import { initializeApp } from "firebase/app";
-import { 
-  getAuth, 
-  RecaptchaVerifier, 
+// ===============================
+// FIREBASE IMPORTS (MODERN SDK)
+// ===============================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  RecaptchaVerifier,
   signInWithPhoneNumber,
-  signInWithEmailLink,
+  sendSignInLinkToEmail,
   isSignInWithEmailLink,
+  signInWithEmailLink,
   setPersistence,
   browserLocalPersistence
-} from "firebase/auth";
-import { getFirestore, collection, addDoc } from "firebase/firestore";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+import {
+  getFirestore,
+  collection,
+  addDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ===============================
+// CONFIG
+// ===============================
 const firebaseConfig = {
   apiKey: "AIzaSyD91XfKDdN4e9HXTEUlMZgVykG3ITAQ8NM",
   authDomain: "xolii-web.firebaseapp.com",
@@ -25,116 +36,146 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Set language code like in screenshot 4
-auth.languageCode = 'en'; // or auth.useDeviceLanguage();
+// ===============================
+// UI ELEMENTS
+// ===============================
+const btn = document.getElementById("continueBtn");
+const input = document.getElementById("userInput");
+const popup = document.getElementById("popup");
+const mainSite = document.getElementById("main-site");
 
-// MAIN AUTH FUNCTION
-async function continueAuth() {
-  const input = document.getElementById("userInput").value.trim();
+// ===============================
+// INIT STATE
+// ===============================
+auth.languageCode = "en";
 
-  if (!input) {
-    alert("Enter Gmail or Phone number");
+// ===============================
+// EVENT LISTENER (FIXES YOUR BUTTON)
+// ===============================
+btn.addEventListener("click", handleAuth);
+
+// ===============================
+// MAIN AUTH CONTROLLER
+// ===============================
+async function handleAuth() {
+  const value = input.value.trim();
+
+  if (!value) {
+    alert("Enter email or phone number");
     return;
   }
 
   await setPersistence(auth, browserLocalPersistence);
 
+  // ===========================
   // EMAIL FLOW
-  if (input.includes("@")) {
+  // ===========================
+  if (value.includes("@")) {
     const actionCodeSettings = {
-      url: "https://mfshacker.github.io/xolii/",
+      url: window.location.href,
       handleCodeInApp: true
     };
 
     try {
-      await sendSignInLinkToEmail(auth, input, actionCodeSettings);
-      window.localStorage.setItem("emailForSignIn", input);
+      await sendSignInLinkToEmail(auth, value, actionCodeSettings);
+
+      window.localStorage.setItem("emailForSignIn", value);
 
       await addDoc(collection(db, "visitors"), {
-        method: "email",
-        email: input,
-        date: new Date()
+        type: "email",
+        value,
+        time: Date.now()
       });
 
-      alert("Verification link sent 📩 Check your email");
-    } catch (error) {
-      console.log(error);
-      alert(error.message);
+      alert("Email link sent 📩 Check inbox");
+
+    } catch (err) {
+      console.error(err);
+      alert("Email error: " + err.message);
     }
-  } 
-  
+  }
+
+  // ===========================
   // PHONE FLOW
+  // ===========================
   else {
-    // Invisible reCAPTCHA from screenshot 4
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: (response) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber
-        },
-        'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again
-        }
-      });
-    }
-
     try {
-      const confirmationResult = await signInWithPhoneNumber(auth, input, window.recaptchaVerifier);
-      
-      const code = prompt("Enter OTP sent to your phone");
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          {
+            size: "invisible"
+          }
+        );
+      }
+
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        value,
+        window.recaptchaVerifier
+      );
+
+      const code = prompt("Enter OTP sent to your phone:");
+
       if (!code) {
         alert("OTP required");
         return;
       }
 
-      await confirmationResult.confirm(code);
+      await confirmation.confirm(code);
 
       await addDoc(collection(db, "visitors"), {
-        method: "phone",
-        phone: input,
-        date: new Date()
+        type: "phone",
+        value,
+        time: Date.now()
       });
 
-      document.getElementById("popup").style.display = "none";
-      document.getElementById("main-site").style.display = "block";
-      document.body.style.overflow = "auto";
-      alert("Phone verified successfully ✅");
+      successLogin("Phone verified");
 
-    } catch (error) {
-      console.log(error);
-      alert(error.message);
-      // Reset reCAPTCHA on error like screenshot 5 suggests
+    } catch (err) {
+      console.error(err);
+      alert("Phone error: " + err.message);
+
+      // reset recaptcha safely
       if (window.recaptchaVerifier) {
-        window.recaptchaVerifier.render().then(widgetId => {
-          grecaptcha.reset(widgetId);
-        });
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
       }
     }
   }
 }
 
-// PAGE LOAD
-window.onload = () => {
+// ===============================
+// SUCCESS LOGIN HANDLER
+// ===============================
+function successLogin(message) {
+  popup.style.display = "none";
+  mainSite.style.display = "block";
+  document.body.style.overflow = "auto";
+
+  alert(message + " ✅");
+}
+
+// ===============================
+// EMAIL LINK LOGIN (AUTO CHECK)
+// ===============================
+window.addEventListener("load", async () => {
   document.querySelector(".loader").style.display = "none";
   document.body.style.overflow = "hidden";
 
-  // Handle email link sign-in
   if (isSignInWithEmailLink(auth, window.location.href)) {
-    let email = window.localStorage.getItem("emailForSignIn");
+    let email = localStorage.getItem("emailForSignIn");
+
     if (!email) {
-      email = prompt("Confirm your email again:");
+      email = prompt("Confirm email again:");
     }
 
-    signInWithEmailLink(auth, email, window.location.href)
-      .then(() => {
-        document.getElementById("popup").style.display = "none";
-        document.getElementById("main-site").style.display = "block";
-        document.body.style.overflow = "auto";
-        alert("Email verified successfully ✅");
-      })
-      .catch((error) => {
-        console.log(error);
-        alert(error.message);
-      });
+    try {
+      await signInWithEmailLink(auth, email, window.location.href);
+      successLogin("Email verified");
+    } catch (err) {
+      alert("Email login error: " + err.message);
+    }
   }
-};
+});
