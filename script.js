@@ -58,35 +58,41 @@ async function handleAuth() {
 
   // ================= EMAIL FLOW =================
   if (value.includes("@")) {
-    const password = "defaultPassword123";
+  const password = "defaultPassword123";
 
+  try {
+    let user;
+
+    // TRY LOGIN FIRST
     try {
-      let userCredential;
+      const login = await signInWithEmailAndPassword(auth, value, password);
+      user = login.user;
+    } catch {
+      // CREATE ACCOUNT
+      const register = await createUserWithEmailAndPassword(auth, value, password);
+      user = register.user;
 
-      try {
-        userCredential = await signInWithEmailAndPassword(auth, value, password);
-      } catch {
-        userCredential = await createUserWithEmailAndPassword(auth, value, password);
-        await sendEmailVerification(userCredential.user);
-        alert("📩 Verification email sent. Check inbox.");
-        return;
-      }
-
-      // already exists → check verification
-      if (!userCredential.user.emailVerified) {
-        await sendEmailVerification(userCredential.user);
-        alert("⚠️ Please verify your email first. Email sent again.");
-        return;
-      }
-
-      await logVisitor("email", value);
-      success("Welcome 👋");
-
-    } catch (err) {
-      alert(err.message);
+      await sendEmailVerification(user);
+      alert("📩 Verification email sent. Check inbox.");
+      return; // STOP HERE (critical)
     }
-  }
 
+    // FORCE VERIFICATION CHECK
+    await user.reload();
+
+    if (!user.emailVerified) {
+      await sendEmailVerification(user);
+      alert("⚠️ You must verify your email first. New link sent.");
+      return;
+    }
+
+    await logVisitor("email", value);
+    success("Verified access granted ✅");
+
+  } catch (err) {
+    alert(err.message);
+  }
+}
   // ================= PHONE FLOW =================
   else {
     try {
@@ -139,6 +145,11 @@ async function logVisitor(type, value) {
 
 // ================= SUCCESS UI =================
 function success(msg) {
+  if (auth.currentUser?.email && !auth.currentUser.emailVerified) {
+    alert("Verify email before accessing site");
+    return;
+  }
+
   popup.style.display = "none";
   mainSite.style.display = "block";
   document.body.style.overflow = "auto";
