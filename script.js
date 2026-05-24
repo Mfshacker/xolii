@@ -104,6 +104,10 @@ function continueAuth() {
 
         document.getElementById("popup").style.display = "none";
 
+document.getElementById("main-site").style.display = "block";
+
+document.body.style.overflow = "auto";
+
         alert("Phone verified successfully ✅");
 
       })
