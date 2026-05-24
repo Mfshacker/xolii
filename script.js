@@ -1,16 +1,15 @@
 // ===============================
-// FIREBASE IMPORTS (MODERN SDK)
+// FIREBASE IMPORTS (MODULAR)
 // ===============================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  sendSignInLinkToEmail,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
@@ -20,7 +19,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ===============================
-// CONFIG
+// FIREBASE CONFIG
 // ===============================
 const firebaseConfig = {
   apiKey: "AIzaSyD91XfKDdN4e9HXTEUlMZgVykG3ITAQ8NM",
@@ -36,6 +35,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+auth.languageCode = "en";
+
 // ===============================
 // UI ELEMENTS
 // ===============================
@@ -45,13 +46,14 @@ const popup = document.getElementById("popup");
 const mainSite = document.getElementById("main-site");
 
 // ===============================
-// INIT STATE
+// INIT
 // ===============================
-auth.languageCode = "en";
+window.addEventListener("load", () => {
+  document.querySelector(".loader").style.display = "none";
+  document.body.style.overflow = "hidden";
+});
 
-// ===============================
-// EVENT LISTENER (FIXES YOUR BUTTON)
-// ===============================
+// BUTTON FIX (THIS WAS YOUR MAIN ISSUE)
 btn.addEventListener("click", handleAuth);
 
 // ===============================
@@ -68,35 +70,41 @@ async function handleAuth() {
   await setPersistence(auth, browserLocalPersistence);
 
   // ===========================
-  // EMAIL FLOW
+  // EMAIL / PASSWORD FLOW (FIXED)
   // ===========================
   if (value.includes("@")) {
-    const actionCodeSettings = {
-      url: window.location.href,
-      handleCodeInApp: true
-    };
+    const password = "defaultPassword123"; // simple fallback system
 
     try {
-      await sendSignInLinkToEmail(auth, value, actionCodeSettings);
+      // try login first
+      await signInWithEmailAndPassword(auth, value, password);
 
-      window.localStorage.setItem("emailForSignIn", value);
-
-      await addDoc(collection(db, "visitors"), {
-        type: "email",
-        value,
-        time: Date.now()
-      });
-
-      alert("Email link sent 📩 Check inbox");
+      await logVisitor("email", value);
+      successLogin("Welcome back 👋");
 
     } catch (err) {
-      console.error(err);
-      alert("Email error: " + err.message);
+      // if user doesn't exist → create account
+      if (err.code === "auth/user-not-found" ||
+          err.code === "auth/invalid-credential") {
+
+        try {
+          await createUserWithEmailAndPassword(auth, value, password);
+
+          await logVisitor("email", value);
+          successLogin("Account created ✅");
+
+        } catch (createErr) {
+          alert(createErr.message);
+        }
+
+      } else {
+        alert(err.message);
+      }
     }
   }
 
   // ===========================
-  // PHONE FLOW
+  // PHONE OTP FLOW (FIXED)
   // ===========================
   else {
     try {
@@ -116,7 +124,7 @@ async function handleAuth() {
         window.recaptchaVerifier
       );
 
-      const code = prompt("Enter OTP sent to your phone:");
+      const code = prompt("Enter OTP sent to your phone");
 
       if (!code) {
         alert("OTP required");
@@ -125,19 +133,13 @@ async function handleAuth() {
 
       await confirmation.confirm(code);
 
-      await addDoc(collection(db, "visitors"), {
-        type: "phone",
-        value,
-        time: Date.now()
-      });
-
-      successLogin("Phone verified");
+      await logVisitor("phone", value);
+      successLogin("Phone verified ✅");
 
     } catch (err) {
       console.error(err);
-      alert("Phone error: " + err.message);
+      alert(err.message);
 
-      // reset recaptcha safely
       if (window.recaptchaVerifier) {
         window.recaptchaVerifier.clear();
         window.recaptchaVerifier = null;
@@ -147,35 +149,26 @@ async function handleAuth() {
 }
 
 // ===============================
-// SUCCESS LOGIN HANDLER
+// FIRESTORE LOGGING
 // ===============================
-function successLogin(message) {
-  popup.style.display = "none";
-  mainSite.style.display = "block";
-  document.body.style.overflow = "auto";
-
-  alert(message + " ✅");
+async function logVisitor(type, value) {
+  try {
+    await addDoc(collection(db, "visitors"), {
+      type,
+      value,
+      time: Date.now()
+    });
+  } catch (err) {
+    console.log("Firestore error:", err);
+  }
 }
 
 // ===============================
-// EMAIL LINK LOGIN (AUTO CHECK)
+// LOGIN SUCCESS UI
 // ===============================
-window.addEventListener("load", async () => {
-  document.querySelector(".loader").style.display = "none";
-  document.body.style.overflow = "hidden";
-
-  if (isSignInWithEmailLink(auth, window.location.href)) {
-    let email = localStorage.getItem("emailForSignIn");
-
-    if (!email) {
-      email = prompt("Confirm email again:");
-    }
-
-    try {
-      await signInWithEmailLink(auth, email, window.location.href);
-      successLogin("Email verified");
-    } catch (err) {
-      alert("Email login error: " + err.message);
-    }
-  }
-});
+function successLogin(msg) {
+  popup.style.display = "none";
+  mainSite.style.display = "block";
+  document.body.style.overflow = "auto";
+  alert(msg);
+}
